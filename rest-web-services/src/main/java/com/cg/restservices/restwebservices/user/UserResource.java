@@ -1,8 +1,13 @@
 package com.cg.restservices.restwebservices.user;
 
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
 import java.net.URI;
 import java.util.List;
 
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,15 +33,32 @@ public class UserResource {
 		return service.findAll();
 	}
 	
+	//HTTP://LOCALHOST:8081/users
+	//EntityModel
+	//WebMvcLinkBuilder
+	
+	
+	//@GetMapping("/users/{id}")
+	@GetMapping("/users/{id}")
+	public EntityModel<User> retrieveUser(@PathVariable int id){
+		User user = service.findOne(id);
+		
+		if(user == null)
+			throw new UserNotFoundException("id: " +id);
+		EntityModel<User> entityModel = EntityModel.of(user);
+		
+	    WebMvcLinkBuilder link = linkTo(methodOn(this.getClass()).getAllUsers());
+	    entityModel.add(link.withRel("all-users"));
+		return entityModel;
+	}
+	
 	//GET /usersById
-		@GetMapping("/users/{id}")
-		public User getAllUsersById(@PathVariable int id){
-			User user = service.findOne(id);
-			
-			if(user == null)
-				throw new UserNotFoundException("id: " +id);
-			return user;
-		}
+	/*
+	 * @GetMapping("/users/{id}") public User getAllUsersById(@PathVariable int id){
+	 * User user = service.findOne(id);
+	 * 
+	 * if(user == null) throw new UserNotFoundException("id: " +id); return user; }
+	 */
 		
     //Post /createUser
 		@PostMapping("/users")
